@@ -121,6 +121,17 @@
             </a>
         </div>
     </div>
+    <div class="Transparency">
+        <h4 class="section-title">
+            <a href="javascript:set_transparency()" id="transparency-option" class="fa" rel="popover">Opacity</a>
+        </h4>
+        <div id="popover-transparency" class="hide">
+            Exposure:
+            <input type="text" class="span2" value="1" id="rangeSlider" data-slider-min="1" data-slider-max="10" data-slider-step="1">
+            <!-- Hazard:
+            <input type="text" class="span2" value="1" id="rangeSlider2" data-slider-min="1" data-slider-max="10" data-slider-step="1"-->
+        </div>
+    </div>
     {% endif %}
 {% endfor %}
 {#<div class="report section">#}
