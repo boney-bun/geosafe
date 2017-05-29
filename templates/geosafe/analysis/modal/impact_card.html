@@ -22,13 +22,7 @@
             <div class="modal-footer">
                 <div class="container col-xs-12">
                     <div class="row">
-                        {%  if links %}
-                        <a data-toggle="modal" data-target="#download-layer" role="button" class="btn btn-default btn-xs col-xs-3">Download layer</a>
-                        {%  endif %}
-                        <a href="{% url "layer_detail" layername=analysis.impact_layer.service_typename %}" role="button" class="btn btn-default btn-xs col-xs-3">Layer detail</a>
-                    </div>
-                    <div class="row">
-                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show map report</a>
+                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Impact report</a>
                         <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show table report</a>
                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}" role="button" class="btn btn-default btn-xs col-xs-3">Download report</a>
                         <div class="onoffswitch save-analysis col-xs-3">
