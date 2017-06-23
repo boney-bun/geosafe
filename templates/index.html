@@ -4,7 +4,6 @@
 {% load base_tags %}
 
 {% block title %} {% trans "Welcome!" %} - GeoSAFE {% endblock %}
-
 {% block body_class %}home{% endblock %}
 
 {% block middle %}
@@ -12,11 +11,35 @@
   <div class="jumbotron">
   	<div class="container">
   		<h1>{% trans "GeoSAFE" %}</h1>
-  		<p></p>
-  		<p>{% blocktrans %}GeoSAFE is a django app that integrates inaSAFE Headless functionality into Geonode.{% endblocktrans %}</p>
-		<p>{% blocktrans %}This app visually analyzes an impact on a map in the event of disaster.{% endblocktrans %}</p>
-		<p>{% blocktrans %}Analysis reports can also be generated and saved for future reference.{% endblocktrans %}</p>
-  		<a class="btn btn-default btn-lg" href="#what-anchor" role="button">{% blocktrans %}What ?{% endblocktrans %}</a>
+        <table style="margin: 25px 0px;">
+            <tr>
+                <td>
+                    <div id='mySwipe' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe">
+                        <div class='swipe-wrap'>
+                            <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                            <div><img src="{% static 'geosafe/img/geosafe-impact-visualisation.png' %}"/></div>
+                            <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p style="margin: 5px 50px; font-size: 18px;">GeoSAFE is a web platform that provides the ability to run InaSAFE analyses online.<br/>
+                        InaSAFE is free software that produces realistic natural hazard impact scenarios for better planning, preparedness and response activities.<br/>
+                        It provides a simple but rigorous way to combine data from scientists, local governments and communities to provide insights into the likely impacts of future disaster events.<br/>
+                        You can find out more about the InaSAFE project at <a href="http://inasafe.org">http://inasafe.org</a><br/>
+                        This app visually analyzes an impact on a map in the event of disaster.<br/>
+                        Analysis reports can also be generated and saved for future reference.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p style="text-align: center">
+            <a href="#what-anchor" role="button" title="What can GeoSAFE do?">{% blocktrans %}<i class="fa fa-arrow-down fa-3x icon-white"></i>{% endblocktrans %}</a>
+            <a href="{% url "geosafe:analysis-create" %}" title="Try It Out">
+                <i class="fa fa-flask fa-3x icon-white" aria-hidden="true"></i>
+            </a>
+        </p>
+
   	</div>
   </div>
   {% include "_status_message.html" %}
@@ -27,29 +50,48 @@
     <div class="container">
       <div class="row">
         <h1>What can GeoSAFE do?</h1>
-        <div class="row">
-            <ul>
-                <li>
-                    <b>Perform Analysis</b>
-                    <p>
-                        Analyze a map according to the given layers (exposure and hazard) and generate InaSAFE report
-                    </p>
-                </li>
-                <li>
-                    <b>Analysis List</b>
-                    <p>
-                        Contain saved map analysis for future reference
-                    </p>
-                </li>
-                <li>
-                    <b>Metasearch</b>
-                    <p>
-                        Search based on Catalog Service for the Web (CSW)
-                    </p>
-                </li>
-            </ul>
+
+          <div class="row">
+              <table style="margin: 25px 0px;">
+                  <tr>
+                      <td>
+                          <div id='mySwipeWhat' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-what">
+                              <div class='swipe-what-wrap'>
+                                  <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/analysis-list.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+                              </div>
+                          </div>
+                      </td>
+                      <td>
+                          <ul style="margin: 5px 50px;">
+                              <li>
+                                  <b>Perform Analysis</b>
+                                  <p>
+                                      Perform an InaSAFE analysis using hazard and exposure data hosted on GeoNode.
+                                      Visualize the InaSAFE analysis results as a map and infographic, and as downloadable PDF reports.
+                                  </p>
+                              </li>
+                              <li>
+                                  <b>Analysis List</b>
+                                  <p>
+                                      Browse previously run InaSAFE analysis results and visualize the map and report products for each analysis.
+                                  </p>
+                              </li>
+                              <li>
+                                  <b>Metasearch</b>
+                                  <p>
+                                      Search for datasets in other online geospatial data stores that publish their catalogues using the CSW standard.
+                                  </p>
+                              </li>
+                          </ul>
+                      </td>
+                  </tr>
+              </table>
         </div>
-        <a class="btn btn-default btn-lg" href="#how-anchor" role="button">{% blocktrans %}How ?{% endblocktrans %}</a>
+          <p style="text-align: center">
+              <a href="#how-anchor" role="button" title="How to run an analysis?">{% blocktrans %}<i class="fa fa-arrow-down icon-blue fa-5x"></i>{% endblocktrans %}</a>
+          </p>
       </div>
     </div>
   </section>
@@ -60,22 +102,41 @@
     <div class="container">
       <div class="row">
         <h1>How to run an Analysis?</h1>
-        <div class="row">
-            <ul>
-                <li>
-                    Select an exposure layer (road, structure, population)
-                </li>
-                <li>
-                    Select a hazard layer (flood, tsunami, earthquake, volcano, and volcanic ash)
-                </li>
-                <li>
-                    Select an impact function
-                </li>
-            </ul>
-            <div class="extra-note">
-                That's it. Ready to go...
-            </div>
-        </div>
+          <div class="row">
+              <table style="margin: 25px 0px;">
+                  <tr>
+                      <td>
+                          <div id='mySwipeHow' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-how">
+                              <div class='swipe-how-wrap'>
+                                  <div><img src="{% static 'geosafe/img/select-hazard.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/select-exposure.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/select-impact-layer.png' %}"/></div>
+                              </div>
+                          </div>
+                      </td>
+                      <td>
+                          <ul style="margin: 5px 50px;">
+                              <li>
+                                  Select an exposure layer (e.g. road, structure, population)
+                              </li>
+                              <li>
+                                  Select a hazard layer (e.g. flood, tsunami, earthquake, volcano, and volcanic ash)
+                              </li>
+                              <li>
+                                  Select an impact function
+                              </li>
+                          </ul>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td>
+                          <div class="extra-note">
+                              That's it. Ready to go...
+                          </div>
+                      </td>
+                  </tr>
+              </table>
+          </div>
       </div>
     </div>
   </section>
@@ -115,6 +176,7 @@
 {% if DEBUG_STATIC %}
 <script src="{{ STATIC_URL }}lib/js/angular.js"></script>
 {% endif %}
+<script type="text/javascript" src="{% static 'geosafe/js/swipe.js' %}"></script>
 <script type="text/javascript">
     FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
     'use strict';
@@ -126,15 +188,54 @@
         });
       });
     })();
+    var scrollTimer = 10000;
+    var elem = document.getElementById('mySwipe');
+    window.mySwipe = Swipe(elem, {
+        auto: scrollTimer,
+        continuous: true
+    });
+    var elemWhat = document.getElementById('mySwipeWhat');
+    window.mySwipeWhat = Swipe(elemWhat, {
+        auto: scrollTimer,
+        continuous: true
+    });
+    var elemHow = document.getElementById('mySwipeHow');
+    window.mySwipeHow = Swipe(elemHow, {
+        auto: scrollTimer,
+        continuous: true
+    });
+
 </script>
 <script>
 	$('[data-toggle="tooltip"]').tooltip();
 </script>
+
 <style>
+    .swipe, .swipe-what, .swipe-how {
+        overflow: hidden;
+        visibility: hidden;
+        position: relative;
+    }
+
+    #mySwipe div, mySwipeWhat div, mySwipeHow div {
+        display: block;
+    }
+
+    .swipe-wrap > div, .swipe-what-wrap > div, .swipe-how-wrap > div {
+        float:left;
+        overflow: hidden;
+        position: relative;
+    }
+
     #what-section {
         background-color: #eee;
     }
-    
+
+    img {
+        width: 640px;
+        height: 320px;
+    }
+
     #how-section {
         background-color: #2c689c;
         color: #fff;
@@ -156,7 +257,7 @@
         padding-bottom: 50px;
     }
 
-    .safe-section .btn-default {
+    .safe-section, .btn-default {
         min-width: 320px;
         border: 2px solid #2c689c;
     }
@@ -185,6 +286,22 @@
         position: relative;
         top: -75px;
         visibility: hidden;
+    }
+
+    .fa-arrow-down.icon-white, .fa-flask.icon-white {
+        color: white;
+    }
+
+    .fa-arrow-down.icon-white:hover, .fa-flask.icon-white:hover {
+        color: #2d6987;
+    }
+
+    .fa-arrow-down.icon-blue {
+        color: #2c689c;
+    }
+
+    .fa-arrow-down.icon-blue:hover {
+        color: #6d6c6c;
     }
 </style>
 {% endblock extra_script %}

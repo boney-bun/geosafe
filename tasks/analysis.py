@@ -4,24 +4,25 @@ from __future__ import absolute_import
 
 import logging
 import os
-import tempfile
-import time
 import urlparse
 from zipfile import ZipFile
 
-import requests
-import shutil
-from celery.app import shared_task
-from django.conf import settings
-from django.core.files.base import File
+from celery import chain
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
+from geosafe.app_settings import settings
+from geosafe.celery import app
+from geosafe.helpers.utils import (
+    download_file,
+    get_layer_path,
+    get_impact_path)
 from geosafe.models import Analysis, Metadata
-from geosafe.tasks.headless.analysis import read_keywords_iso_metadata
-from geosafe.tasks.headless.analysis import run_analysis
+from geosafe.tasks.headless.analysis import (
+    read_keywords_iso_metadata,
+    run_analysis)
 
 __author__ = 'lucernae'
 
@@ -29,35 +30,15 @@ __author__ = 'lucernae'
 LOGGER = logging.getLogger(__name__)
 
 
-def download_file(url, user=None, password=None):
-    parsed_uri = urlparse.urlparse(url)
-    if parsed_uri.scheme == 'http' or parsed_uri.scheme == 'https':
-        tmpfile = tempfile.mktemp()
-        # NOTE the stream=True parameter
-        # Assign User-Agent to emulate browser
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686) '
-                          'Gecko/20071127 Firefox/2.0.0.11'
-        }
-        if user:
-            r = requests.get(
-                url, headers=headers, stream=True, auth=(user, password))
-        else:
-            r = requests.get(url, headers=headers, stream=True)
-        with open(tmpfile, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-        return tmpfile
-    elif parsed_uri.scheme == 'file' or not parsed_uri.scheme:
-        return parsed_uri.path
-
-
-@shared_task(
+@app.task(
     name='geosafe.tasks.analysis.create_metadata_object',
-    queue='geosafe')
-def create_metadata_object(layer_id):
+    queue='geosafe',
+    bind=True)
+def create_metadata_object(self, layer_id):
     """Create metadata object of a given layer
+
+    :param self: Celery task instance
+    :type self: celery.app.task.Task
 
     :param layer_id: layer ID
     :type layer_id: int
@@ -65,26 +46,76 @@ def create_metadata_object(layer_id):
     :return: True if success
     :rtype: bool
     """
-    # Sleep 5 second to let layer post_save ends
-    # That way, the Layer can be accessed
-    time.sleep(5)
-    metadata = Metadata()
-    layer = Layer.objects.get(id=layer_id)
-    metadata.layer = layer
-    layer_url = reverse(
-        'geosafe:layer-metadata',
-        kwargs={'layer_id': layer_id})
-    layer_url = urlparse.urljoin(settings.GEONODE_BASE_URL, layer_url)
-    async_result = read_keywords_iso_metadata.delay(
-        layer_url, ('layer_purpose', 'hazard', 'exposure'))
-    keywords = async_result.get()
-    metadata.layer_purpose = keywords.get('layer_purpose', None)
-    metadata.category = keywords.get(metadata.layer_purpose, None)
-    metadata.save()
+    try:
+        layer = Layer.objects.get(id=layer_id)
+        # Now that layer exists, get InaSAFE keywords
+        using_direct_access = (
+            hasattr(settings, 'INASAFE_LAYER_DIRECTORY') and
+            settings.INASAFE_LAYER_DIRECTORY)
+        if using_direct_access and not layer.is_remote:
+            # If direct disk access were configured, then use it.
+            base_file_path = Analysis.get_base_layer_path(layer)
+            base_file_path = os.path.basename(base_file_path)
+            xml_file_path = base_file_path.split('.')[0] + '.xml'
+            base_dir = settings.INASAFE_LAYER_DIRECTORY
+            layer_url = os.path.join(base_dir, xml_file_path)
+            layer_url = urlparse.urljoin('file://', layer_url)
+        else:
+            # InaSAFE Headless celery will download metadata from url
+            layer_url = reverse(
+                'geosafe:layer-metadata',
+                kwargs={'layer_id': layer.id})
+            layer_url = urlparse.urljoin(settings.GEONODE_BASE_URL, layer_url)
+        # Execute in chain:
+        # - Get InaSAFE keywords from InaSAFE worker
+        # - Set Layer metadata according to InaSAFE keywords
+        read_keywords_iso_metadata_queue = read_keywords_iso_metadata.queue
+        set_layer_purpose_queue = set_layer_purpose.queue
+        tasks_chain = chain(
+            read_keywords_iso_metadata.s(
+                layer_url, ('layer_purpose', 'hazard', 'exposure')).set(
+                queue=read_keywords_iso_metadata_queue),
+            set_layer_purpose.s(layer_id).set(
+                queue=set_layer_purpose_queue)
+        )
+        tasks_chain.delay()
+    except Layer.DoesNotExist as e:
+        # Perhaps layer wasn't saved yet.
+        # Retry later
+        self.retry(exc=e, countdown=5)
     return True
 
 
-@shared_task(
+@app.task(
+    name='geosafe.tasks.analysis.set_layer_purpose',
+    queue='geosafe')
+def set_layer_purpose(keywords, layer_id):
+    """Set layer keywords based on what InaSAFE gave.
+
+    :param keywords: Keywords taken from InaSAFE metadata.
+    :type keywords: dict
+
+    :param layer_id: layer ID
+    :type layer_id: int
+
+    :return: True if success
+    :rtype: bool
+    """
+    layer = Layer.objects.get(id=layer_id)
+    try:
+        metadata = Metadata.objects.get(layer=layer)
+    except Metadata.DoesNotExist:
+        metadata = Metadata()
+        metadata.layer = layer
+
+    metadata.layer_purpose = keywords.get('layer_purpose', None)
+    metadata.category = keywords.get(metadata.layer_purpose, None)
+    metadata.save()
+
+    return True
+
+
+@app.task(
     name='geosafe.tasks.analysis.clean_impact_result',
     queue='geosafe')
 def clean_impact_result():
@@ -103,11 +134,51 @@ def clean_impact_result():
             i.delete()
 
 
-@shared_task(
+def prepare_analysis(analysis_id):
+    """Prepare and run analysis
+
+    :param analysis_id: analysis id of the object
+    :type analysis_id: int
+
+    :return: Celery Async Result
+    :rtype: celery.result.AsyncResult
+    """
+    analysis = Analysis.objects.get(id=analysis_id)
+
+    hazard = get_layer_path(analysis.hazard_layer)
+    exposure = get_layer_path(analysis.exposure_layer)
+    function = analysis.impact_function_id
+
+    # Execute analysis in chains:
+    # - Run analysis
+    # - Process analysis result
+    tasks_chain = chain(
+        run_analysis.s(
+            hazard,
+            exposure,
+            function,
+            generate_report=True
+        ).set(queue='inasafe-headless-analysis'),
+        process_impact_result.s(
+            analysis_id
+        ).set(queue='geosafe')
+    )
+    result = tasks_chain.delay()
+    return result
+
+
+@app.task(
     name='geosafe.tasks.analysis.process_impact_result',
-    queue='geosafe')
-def process_impact_result(analysis_id):
+    queue='geosafe',
+    bind=True)
+def process_impact_result(self, impact_url, analysis_id):
     """Extract impact analysis after running it via InaSAFE-Headless celery
+
+    :param self: Task instance
+    :type self: celery.task.Task
+
+    :param impact_url: impact url returned from analysis
+    :type impact_url: str
 
     :param analysis_id: analysis id of the object
     :type analysis_id: int
@@ -115,33 +186,10 @@ def process_impact_result(analysis_id):
     :return: True if success
     :rtype: bool
     """
-    # wait for process to return the result
-    # try_count = 0
-    # while try_count < 5:
-    #     time.sleep(5)
-    #     try:
-    #         impact_url = impact_url_result.get()
-    #         break
-    #     except:
-    #         try_count += 1
-
     analysis = Analysis.objects.get(id=analysis_id)
 
-    hazard = analysis.get_layer_url(analysis.hazard_layer)
-    exposure = analysis.get_layer_url(analysis.exposure_layer)
-    function = analysis.impact_function_id
-    try_count = 0
-    while try_count < 5:
-        time.sleep(5)
-        try:
-            impact_url = run_analysis.delay(
-                hazard,
-                exposure,
-                function,
-                generate_report=True).get()
-            break
-        except:
-            try_count += 1
+    # decide if we are using direct access or not
+    impact_url = get_impact_path(impact_url)
 
     # download impact zip
     impact_path = download_file(impact_url)
