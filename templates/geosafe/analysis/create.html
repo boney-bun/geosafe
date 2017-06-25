@@ -842,7 +842,7 @@
             }
 
             //replace marker with rectangle if the image fits the screen
-            if (map._zoom > 10) {
+            if (map._zoom >= 5) {
                 map.removeLayer(hazard_exposure_marker_groups);
                 map.addLayer(hazard_exposure_rect_groups);
 
@@ -920,7 +920,7 @@
             }
 
             //replace marker with rectangle if the image fits the screen
-            if(map._zoom > 10)
+            if(map._zoom >= 5)
             {
                 map.removeLayer(hazard_exposure_marker_groups);
                 map.addLayer(hazard_exposure_rect_groups);
@@ -1272,9 +1272,9 @@
                 //use later, particularly if zoom > 10
                 bounds = [[data['layer_bbox_y0'],data['layer_bbox_x0']],[data['layer_bbox_y1'],data['layer_bbox_x1']]];
                 if(category == "hazard") {
-                    rect_layer = L.rectangle(bounds, {color: "#000000", opacity: 0.3, weight: 1});
+                    rect_layer = L.rectangle(bounds, {color: "#2c689c", opacity: 0.8, fill: false, weight: 1});
                 } else if(category == "exposure") {
-                    rect_layer = L.rectangle(bounds, {color: "#ff7800", opacity: 0.8, weight: 1});
+                    rect_layer = L.rectangle(bounds, {color: "#ff7800", opacity: 0.8, fill: false, weight: 1});
                 }
                 hazard_exposure_rect_groups.addLayer(rect_layer);
             });
