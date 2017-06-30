@@ -200,16 +200,13 @@ class AnalysisCreateView(CreateView):
         sections = self.options_panel_dict()
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
-            is_analysis_running = True
         except:
             analysis = None
-            is_analysis_running = False
         context = super(AnalysisCreateView, self).get_context_data(**kwargs)
         context.update(
             {
                 'sections': sections,
                 'analysis': analysis,
-                'is_analysis_running': is_analysis_running,
                 'report_type': None,
             }
         )

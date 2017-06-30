@@ -575,7 +575,7 @@
             }).addTo(map);
 
             {# Showing markers for all available layers, except if analysis being run #}
-            {% if not is_analysis_running %}
+            {%  if not analysis and analysis.get_task_state != "" %}
             if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)
             {
                 var num_hazard = hazard_layer_cbo[0].length;
