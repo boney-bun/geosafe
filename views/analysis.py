@@ -506,6 +506,7 @@ def validate_analysis_extent(request):
         # convert to EPSG:3410 for equal area projection
         analysis_geom.transform('3410')
         area = analysis_geom.area
+        request.session['area'] = area
 
         # Transform back to EPSG:4326
         analysis_geom.transform('4326')
@@ -522,7 +523,8 @@ def validate_analysis_extent(request):
                 'is_valid': True,
                 'is_warned': True,
                 'extent': view_extent,
-                'reason': message
+                'reason': message,
+                'area': area
             }
             return HttpResponse(
                 json.dumps(retval), content_type="application/json")
@@ -534,7 +536,8 @@ def validate_analysis_extent(request):
             'is_valid': True,
             'is_warned': False,
             'extent': view_extent,
-            'reason': message
+            'reason': message,
+            'area': area
         }
         return HttpResponse(
             json.dumps(retval), content_type="application/json")
@@ -542,6 +545,23 @@ def validate_analysis_extent(request):
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseServerError()
+
+
+def calculate_area(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    if 'area' in request.session:
+        area = request.session['area']
+        retval = {
+            'is_valid': True,
+            'is_warned': False,
+            'area': area
+        }
+        return HttpResponse(
+            json.dumps(retval), content_type="application/json")
+    else:
+        return HttpResponseBadRequest()
 
 
 @login_required
