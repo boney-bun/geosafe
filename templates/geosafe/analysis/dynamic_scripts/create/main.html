@@ -235,13 +235,28 @@
      */
     function show_marker(layer_id, category) {
         $.get('{% url 'geosafe:layer-tiles' %}', {'layer_id': layer_id}, function (data) {
+
             //default use of the marker
-            var layer = L.marker([data['layer_bbox_y0'], data['layer_bbox_x0']]);
-            hazard_exposure_marker_groups.addLayer(layer);
+            var marker = L.marker([data['layer_bbox_y0'], data['layer_bbox_x0']], {
+                title:data['layer_name']
+            });
+            marker.on('click', function (event) {
+                //map.removeLayer(hazard_exposure_marker_groups);
+                //map.addLayer(hazard_exposure_rect_groups);
+                /*
+                if(category == "hazard") {
+                    update_hazard_layer(layer_id, false);
+                } else if (category == "exposure") {
+                    update_exposure_layer(layer_id, false);
+                } */
+                zoom_to_box(map, [data['layer_bbox_x0'], data['layer_bbox_y0'], data['layer_bbox_x1'], data['layer_bbox_y1']]);
+
+            });
+            hazard_exposure_marker_groups.addLayer(marker);
 
             //use later, particularly if zoom > 10
             bounds = [[data['layer_bbox_y0'], data['layer_bbox_x0']], [data['layer_bbox_y1'], data['layer_bbox_x1']]];
-            var rect_layer;
+
             if (category == "hazard") {
                 rect_layer = L.rectangle(bounds, {
                     color: "#2c689c",
@@ -258,6 +273,7 @@
                 });
             }
             if(rect_layer != undefined) {
+                rect_layer.bindTooltip(data['layer_name'], {sticky: true});
                 hazard_exposure_rect_groups.addLayer(rect_layer);
             }
         });
