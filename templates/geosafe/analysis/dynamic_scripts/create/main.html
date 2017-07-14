@@ -241,14 +241,6 @@
                 title:data['layer_name']
             });
             marker.on('click', function (event) {
-                //map.removeLayer(hazard_exposure_marker_groups);
-                //map.addLayer(hazard_exposure_rect_groups);
-                /*
-                if(category == "hazard") {
-                    update_hazard_layer(layer_id, false);
-                } else if (category == "exposure") {
-                    update_exposure_layer(layer_id, false);
-                } */
                 zoom_to_box(map, [data['layer_bbox_x0'], data['layer_bbox_y0'], data['layer_bbox_x1'], data['layer_bbox_y1']]);
 
             });
@@ -256,6 +248,7 @@
 
             //use later, particularly if zoom > 10
             bounds = [[data['layer_bbox_y0'], data['layer_bbox_x0']], [data['layer_bbox_y1'], data['layer_bbox_x1']]];
+            var rect_layer;
 
             if (category == "hazard") {
                 rect_layer = L.rectangle(bounds, {
