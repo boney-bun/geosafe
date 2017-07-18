@@ -356,6 +356,7 @@
             height: auto;
             position: relative;
             float: left;
+            z-index: 1000;
         }
 
         .legend {
@@ -476,6 +477,7 @@
 
     <script type="text/javascript">
     window.onload = function() {
+        //page fully loaded, hide the slow-loading notification
         $(".slow-loading").toggle(false);
     };
         {# Initialization script of the page. #}
