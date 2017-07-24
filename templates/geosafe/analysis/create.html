@@ -669,8 +669,9 @@
                 //let show the result here
                 $.post('{% url "geosafe:calculate-area" %}', function (data) {
                     if (data) {
-                        area = data['area'];
-                        formatted_area = numeral(area).format('0,0.00');
+                        area = data['area'] / 1000000;
+                        alert("old: " + data['area'] + " new: " + area);
+                        formatted_area = numeral(area).format('0,0');
                         $('#analysis_area').text(formatted_area);
                     }
                 });
