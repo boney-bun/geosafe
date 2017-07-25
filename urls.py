@@ -11,6 +11,7 @@ from geosafe.views.analysis import (
     layer_tiles,
     layer_metadata,
     layer_archive,
+    calculate_area,
     layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
     analysis_summary, cancel_analysis, validate_analysis_extent)
@@ -70,6 +71,14 @@ urlpatterns = patterns(
         r'^analysis/extent/validation/',
         validate_analysis_extent,
         name='validate-analysis-extent'
+    ),
+    url(
+        r'^analysis/extent/calculate/'
+        r'(?P<hazard_id>\d+)/'
+        r'(?P<exposure_id>\d+)'
+        r'(?:/(?P<view_extent>[,.\d-]*))?',
+        calculate_area,
+        name='calculate-area'
     ),
     url(
         r'^analysis/rerun/'
