@@ -550,6 +550,7 @@ def validate_analysis_extent(request):
                 'is_valid': True,
                 'is_warned': True,
                 'extent': view_extent,
+                'area': area,
                 'reason': message
             }
             return HttpResponse(
@@ -562,112 +563,8 @@ def validate_analysis_extent(request):
             'is_valid': True,
             'is_warned': False,
             'extent': view_extent,
+            'area': area,
             'reason': message
-        }
-        return HttpResponse(
-            json.dumps(retval), content_type="application/json")
-
-    except Exception as e:
-        LOGGER.exception(e)
-        return HttpResponseServerError()
-
-
-def calculate_area(request, hazard_id, exposure_id, view_extent):
-    if request.method != 'POST':
-        return HttpResponseBadRequest()
-
-    try:
-        hazard_layer = Layer.objects.get(id=hazard_id)
-        exposure_layer = Layer.objects.get(id=exposure_id)
-    except Exception as e:
-        LOGGER.exception(e)
-        return HttpResponseBadRequest()
-
-    # calculate extent
-    try:
-        # Check hazard and exposure intersected
-        hazard_srid, hazard_wkt = hazard_layer.geographic_bounding_box.split(
-            ';')
-        hazard_srid = re.findall(r'\d+', hazard_srid)
-        hazard_geom = GEOSGeometry(hazard_wkt, srid=int(hazard_srid[0]))
-        hazard_geom.transform(4326)
-
-        exposure_srid, exposure_wkt = exposure_layer.geographic_bounding_box.\
-            split(';')
-        exposure_srid = re.findall(r'\d+', exposure_srid)
-        exposure_geom = GEOSGeometry(exposure_wkt, srid=int(exposure_srid[0]))
-        exposure_geom.transform(4326)
-
-        analysis_geom = exposure_geom.intersection(hazard_geom)
-
-        if not analysis_geom:
-            # hazard and exposure doesn't intersect
-            message = _("Hazard and exposure does not intersect.")
-            retval = {
-                'is_valid': False,
-                'is_warned': False,
-                'extent': view_extent,
-                'reason': message
-            }
-            return HttpResponse(
-                json.dumps(retval), content_type="application/json")
-
-        # This bbox is in the format [x0,y0,x1,y1]
-        x0, y0, x1, y1 = [float(n) for n in view_extent.split(',')]
-        view_geom = GEOSGeometry(
-            bbox_to_wkt(x0, x1, y0, y1), srid=4326)
-
-        analysis_geom = view_geom.intersection(analysis_geom)
-
-        if not analysis_geom:
-            # previous hazard and exposure intersection doesn't intersect
-            # view extent
-            message = _("View extent does not intersect hazard and exposure.")
-            retval = {
-                'is_valid': False,
-                'is_warned': False,
-                'extent': view_extent,
-                'reason': message
-            }
-            return HttpResponse(
-                json.dumps(retval), content_type="application/json")
-
-        # Check the size of the extent
-        # convert to EPSG:3410 for equal area projection
-        analysis_geom.transform('3410')
-        area = analysis_geom.area
-        request.session['area'] = area
-
-        # Transform back to EPSG:4326
-        analysis_geom.transform('4326')
-
-        area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
-        if area > area_limit:
-            # Area exceeded designated area limit.
-            # Give warning but still allows analysis.
-            message = _(
-                'Analysis extent exceeded area limit: {limit} m<sup>2</sup.'
-                'Analysis might take a long time to complete.')
-            message = message.format(limit=area_limit)
-            retval = {
-                'is_valid': True,
-                'is_warned': True,
-                'extent': view_extent,
-                'reason': message,
-                'area': area
-            }
-            return HttpResponse(
-                json.dumps(retval), content_type="application/json")
-
-        # convert analysis extent to bbox string again
-        view_extent = ','.join([str(f) for f in analysis_geom.extent])
-        message = _("Analysis will be performed on this given view extent.")
-        retval = {
-            'is_valid': True,
-            'is_warned': False,
-            'extent': view_extent,
-            'reason': message,
-            'area': area
         }
         return HttpResponse(
             json.dumps(retval), content_type="application/json")
