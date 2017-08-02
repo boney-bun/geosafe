@@ -126,11 +126,7 @@
 
                     if(is_valid){
                         $message.attr('class', 'label label-success');
-                        if(is_warned) {
-                            $confirm_button.prop('disabled', true);
-                        } else {
-                            $confirm_button.prop('disabled', false);
-                        }
+                        $confirm_button.prop('disabled', false);
                     }
                     else if(is_warned){
                         $message.attr('class', 'label label-warning');
