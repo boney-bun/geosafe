@@ -57,4 +57,4 @@ INASAFE_ANALYSIS_RUN_TIME_LIMIT = 600
 # Create analysis will display warning if analysis extent
 # exceeded this limit. User will be able to continue analysis
 # with warning that analysis will might take a long time.
-INASAFE_ANALYSIS_AREA_LIMIT = 10000000000
+INASAFE_ANALYSIS_AREA_LIMIT = 1000000000
