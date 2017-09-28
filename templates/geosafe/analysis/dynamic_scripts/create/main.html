@@ -249,7 +249,7 @@
                         } else {
                             allow_message = 'You can\'t run analysis. Please reduce extent';
                         }
-                        run_message = both_selected + 'Cover an area of ' + formatted_area + ' m2. ' + allow_message;
+                        run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
                         $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
                         $run_analysis_popover.popover('show');
                     } else {
