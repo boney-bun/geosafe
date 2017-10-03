@@ -15,7 +15,11 @@
             </div>
             <div class="modal-body">
                 <p class="impact-questions">
-                    In the event of {{ analysis.hazard_layer.title }}, how many {{ analysis.exposure_layer.title }} will be affected
+                    {% if summary.exposure_type != 'polygon people' and summary.exposure_type != 'population' %}
+                    In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }}s and hazard areas on {{ analysis.exposure_layer.title }} below are likely to be affected
+                    {% else %}
+                    In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }} and hazard areas on {{ analysis.exposure_layer.title }} below are likely to be affected
+                    {% endif %}
                 </p>
                 {% include report_template %}
             </div>
