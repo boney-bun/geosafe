@@ -42,7 +42,7 @@ LOGGER = logging.getLogger("geosafe")
 logger = logging.getLogger("geonode.geosafe.analysis")
 # for a complete list of permissions, refer to base.models.ResourceBase.Meta.permissions
 _CERTAIN_PERMS = ['base.view_resourcebase',
-                  'base.change_resourcebase_metadata',
+                  #'base.change_resourcebase_metadata',
                   'base.download_resourcebase']
 
 
@@ -333,7 +333,7 @@ class AnalysisDetailView(DetailView):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
 
-@permission_required(_CERTAIN_PERMS)
+#@permission_required(_CERTAIN_PERMS)
 def impact_function_filter(request):
     """Ajax Request for filtered available IF
     """
@@ -367,7 +367,7 @@ def impact_function_filter(request):
         return HttpResponseServerError()
 
 
-@permission_required(_CERTAIN_PERMS)
+#@permission_required(_CERTAIN_PERMS)
 def layer_tiles(request):
     """Ajax request to get layer's url to show in the map.
     """
