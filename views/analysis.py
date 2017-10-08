@@ -6,8 +6,7 @@ from zipfile import ZipFile
 
 import re
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required, \
-    user_passes_test, permission_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
@@ -40,9 +39,8 @@ LOGGER = logging.getLogger("geosafe")
 
 
 logger = logging.getLogger("geonode.geosafe.analysis")
-# for a complete list of permissions, refer to base.models.ResourceBase.Meta.permissions
+# refer to base.models.ResourceBase.Meta.permissions
 _CERTAIN_PERMS = ['base.view_resourcebase',
-                  #'base.change_resourcebase_metadata',
                   'base.download_resourcebase']
 
 
@@ -128,7 +126,9 @@ def decorator_sections(f):
     def _decorator(self, **kwargs):
 
         authorized_objects = get_objects_for_user(
-            self.request.user, _CERTAIN_PERMS, accept_global_perms=True).values('id')
+            self.request.user,
+            _CERTAIN_PERMS,
+            accept_global_perms=True).values('id')
         sections = AnalysisCreateView.options_panel_dict(
             authorized_objects=authorized_objects)
         kwargs['sections'] = sections
@@ -333,7 +333,7 @@ class AnalysisDetailView(DetailView):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
 
-#@permission_required(_CERTAIN_PERMS)
+
 def impact_function_filter(request):
     """Ajax Request for filtered available IF
     """
@@ -367,7 +367,6 @@ def impact_function_filter(request):
         return HttpResponseServerError()
 
 
-#@permission_required(_CERTAIN_PERMS)
 def layer_tiles(request):
     """Ajax request to get layer's url to show in the map.
     """
