@@ -40,8 +40,7 @@ LOGGER = logging.getLogger("geosafe")
 
 logger = logging.getLogger("geonode.geosafe.analysis")
 # refer to base.models.ResourceBase.Meta.permissions
-_CERTAIN_PERMS = ['base.view_resourcebase',
-                  'base.download_resourcebase']
+_VIEW_PERMS = 'base.view_resourcebase'
 
 
 def retrieve_layers(
@@ -127,7 +126,7 @@ def decorator_sections(f):
 
         authorized_objects = get_objects_for_user(
             self.request.user,
-            _CERTAIN_PERMS,
+            _VIEW_PERMS,
             accept_global_perms=True).values('id')
         sections = AnalysisCreateView.options_panel_dict(
             authorized_objects=authorized_objects)
@@ -144,7 +143,7 @@ def decorator_sections_panel(f):
     """
     def _decorator(request, bbox=None, **kwargs):
         authorized_objects = get_objects_for_user(
-            request.user, _CERTAIN_PERMS).values('id')
+            request.user, _VIEW_PERMS).values('id')
         sections = AnalysisCreateView.options_panel_dict(
             authorized_objects=authorized_objects,
             bbox=bbox)
