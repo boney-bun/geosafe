@@ -16,7 +16,7 @@
             <h2 style="text-align: center">{% trans "InaSAFE made easy." %}</h2>
             <div class="search">
                     <form id="search" action="{% url "search" %}" >
-                        <span class="fa fa-search fa-2x"></span>
+                        <span class="fa fa-search"></span>
                         {% if HAYSTACK_SEARCH %}
                         <input id="search_input" type="text" placeholder="Search Data" class="form-control" name="q">
                         {% else %}
@@ -24,16 +24,7 @@
                         {% endif %}
                     </form>
             </div>
-            <!--div id='mySwipeWhat' class="swipe-what">
-                   <div class='swipe-what-wrap'>
-                       <div><img src="{% static 'geosafe/img/01.jpg' %}"/></div>
-                       <div><img src="{% static 'geosafe/img/02.jpg' %}"/></div>
-                       <div><img src="{% static 'geosafe/img/03.jpg' %}"/></div>
-                       <div><img src="{% static 'geosafe/img/04.jpg' %}"/></div>
-                   </div>
-            </div-->
         </div>
-
       <!-- container -->
       </div>
   <!-- row -->
@@ -104,14 +95,13 @@
                       </td>
                       <td>
                                   <h1 class="font-green">What it can do?</h1>
-                          <div><img src="{% static 'geosafe/img/laptop_it_can_do.png' %}"/></div>
-                          <!--div id='mySwipeWhat' class="swipe-what">
+                          <div id='mySwipeWhat' class="swipe-what">
                               <div class='swipe-what-wrap'>
-                                  <div><img src="{% static 'geosafe/img/laptop_it_can_do.png' %}"/></div>
-                                  <div><img src="{% static 'geosafe/img/laptop_it_can_do_2.png' %}"/></div>
-                                  <div><img src="{% static 'geosafe/img/laptop_it_can_do_3.png' %}"/></div>
+                                  <div><img width="740px" height="503px" src="{% static 'geosafe/img/laptop_it_can_do.png' %}"/></div>
+                                  <div><img width="740px" height="503px" src="{% static 'geosafe/img/laptop_it_can_do_2.png' %}"/></div>
+                                  <div><img width="740px" height="503px" src="{% static 'geosafe/img/laptop_it_can_do_3.png' %}"/></div>
                               </div>
-                          </div-->
+                          </div>
                       </td>
 
                   </tr>
@@ -192,7 +182,8 @@
     var elemWhat = document.getElementById('mySwipeWhat');
     window.mySwipeWhat = Swipe(elemWhat, {
         auto: scrollTimer,
-        continuous: true
+        continuous: true,
+        callback: function(index, elemWhat) {}
     });
 
 </script>
@@ -203,25 +194,18 @@
 <style>
     .swipe-what {
         overflow: hidden;
-        visibility: hidden;
+        width: 740px;
         position: relative;
     }
-
-    mySwipeWhat div {
-        display: block;
-    }
-
-    .swipe-what-wrap > div {
-        float: left;
+    .swipe-what-wrap {
         overflow: hidden;
         position: relative;
     }
-    .swipe-what-wrap > div > img {
-        width: 640px;
-        height: 320px;
-
+    .swipe-what-wrap > div {
+        float: left;
+        width: 740px;
+        position: relative;
     }
-
     img {
         width: 32px;
         height: 36px;
