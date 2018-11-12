@@ -696,8 +696,6 @@ def validate_analysis_extent(request):
         # Transform back to EPSG:4326
         analysis_geom.transform('4326')
 
-        area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
-
         # convert analysis extent to bbox string again
         view_extent = ','.join([str(f) for f in analysis_geom.extent])
         message = _("Analysis will be performed on this given view extent.")
