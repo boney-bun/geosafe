@@ -526,21 +526,23 @@
 
             check_popover();
 
-            var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
-                zIndex: 0,
-                noWrap: true,
-                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            var Terrain = L.tileLayer('http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>' +
+                '<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a>&mdash; ' +
+                'Map data &copy;<a href="http://openstreetmap.org">OpenStreetMap</a> contributors,' +
+                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
             });
             var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 zIndex: 0,
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             });
             var base_maps = {
-                'OpenMapSurfer_Roads': OpenMapSurfer_Roads,
+                'Terrain': Terrain,
                 'OpenStreetMap': osm
             };
             map = L.map('map', {
-                layers: [OpenMapSurfer_Roads],
+                layers: [osm],
                 minZoom: 4
             });
 

@@ -226,11 +226,14 @@
                 subdomains: '1234'
             });
 
-            var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
-                noWrap: true,
-                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            var Terrain = L.tileLayer('http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>' +
+                '<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a>&mdash; ' +
+                'Map data &copy;<a href="http://openstreetmap.org">OpenStreetMap</a> contributors,' +
+                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
             });
-            map.addLayer(OpenMapSurfer_Roads);
+            map.addLayer(osm);
             var exposure_layer = [];
             var hazard_layer = [];
             var aggregation_layer = [];
