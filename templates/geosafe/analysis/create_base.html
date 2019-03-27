@@ -526,7 +526,7 @@
 
             check_popover();
 
-            var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            var default_basemap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 zIndex: 0,
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             });
@@ -538,10 +538,11 @@
                         attribution: '{{ tile.2|safe }}'
                 });
                 {% endfor %}
+                default_basemap = base_maps["{{ LEAFLET_CONFIG.TILES.0.0 }}"];
             {% endif %}
 
             map = L.map('map', {
-                layers: [osm],
+                layers: [default_basemap],
                 minZoom: 4
             });
 
